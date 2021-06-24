@@ -1,15 +1,36 @@
-import * as React from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useState } from "react";
+import { StyleSheet, FlatList } from "react-native";
 
-import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
+import { View } from "../components/Themed";
+
+// Component
+import ProjectItem from "../components/ProjectItem";
 
 export default function TabTwoScreen() {
+  const [project, setProject] = useState([
+    {
+      id: "1",
+      title: "Hello World 1",
+      createdAt: "1 Days",
+    },
+    {
+      id: "2",
+      title: "Hello World 2",
+      createdAt: "2 Days",
+    },
+    {
+      id: "3",
+      title: "Hello World 3",
+      createdAt: "3 Days",
+    },
+  ]);
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab Two</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="/screens/TabTwoScreen.tsx" />
+      <FlatList
+        data={project}
+        renderItem={({ item }) => <ProjectItem project={item} />}
+        style={{ width: "100%" }}
+      />
     </View>
   );
 }
@@ -17,16 +38,7 @@ export default function TabTwoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

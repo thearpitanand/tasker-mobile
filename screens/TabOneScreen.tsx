@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { StyleSheet, FlatList, TextInput } from "react-native";
+import {
+  StyleSheet,
+  FlatList,
+  TextInput,
+  KeyboardAvoidingView,
+} from "react-native";
 
 import { View } from "../components/Themed";
 
@@ -42,22 +47,28 @@ export default function TabOneScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        style={styles.title}
-        value={title}
-        onChangeText={setTitle}
-        placeholder={"Task List Name"}
-        placeholderTextColor="white"
-      />
-      <FlatList
-        data={todos}
-        renderItem={({ item, index }) => (
-          <ToDoItem todo={item} onSubmit={() => createNewItem(index + 1)} />
-        )}
-        style={{ width: "100%" }}
-      />
-    </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 130 : 0}
+      style={{ flex: 1 }}
+    >
+      <View style={styles.container}>
+        <TextInput
+          style={styles.title}
+          value={title}
+          onChangeText={setTitle}
+          placeholder={"Task List Name"}
+          placeholderTextColor="white"
+        />
+        <FlatList
+          data={todos}
+          renderItem={({ item, index }) => (
+            <ToDoItem todo={item} onSubmit={() => createNewItem(index + 1)} />
+          )}
+          style={{ width: "100%" }}
+        />
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 

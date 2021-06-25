@@ -1,12 +1,10 @@
 import React, { useState } from "react";
-import { StyleSheet, FlatList } from "react-native";
-
-import { View } from "../components/Themed";
+import { StyleSheet, FlatList, View } from "react-native";
 
 // Component
 import ProjectItem from "../components/ProjectItem";
 
-export default function TabTwoScreen() {
+export default function ProjectsScreen() {
   const [project, setProject] = useState([
     {
       id: "1",
@@ -40,5 +38,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#000000",
   },
 });

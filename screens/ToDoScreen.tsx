@@ -4,14 +4,13 @@ import {
   FlatList,
   TextInput,
   KeyboardAvoidingView,
+  View,
 } from "react-native";
-
-import { View } from "../components/Themed";
 
 // Component
 import ToDoItem from "../components/ToDoItem";
 
-export default function TabOneScreen() {
+export default function ToDoScreen() {
   const [title, setTitle] = useState("");
   const [todos, setTodos] = useState([
     {
@@ -77,6 +76,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     padding: 12,
+    backgroundColor: "#000000",
   },
   title: {
     width: "100%",

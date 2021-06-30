@@ -6,9 +6,11 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 // Import CSS
 import styles from "./styles";
+import { useEffect } from "react";
 
 interface ProjectItemProps {
   project: {
+    // __typename: string;
     id: string;
     title: string;
     createdAt: string;
@@ -17,6 +19,7 @@ interface ProjectItemProps {
 
 const ProjectItem = ({ project }: ProjectItemProps) => {
   const navigation = useNavigation();
+
   const onPress = () => {
     navigation.navigate("ToDoScreen", { id: project.id });
   };

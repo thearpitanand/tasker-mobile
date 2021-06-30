@@ -1,49 +1,101 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   FlatList,
   TextInput,
   KeyboardAvoidingView,
   View,
+  Alert,
 } from "react-native";
+import { useRoute } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 
 // Component
 import ToDoItem from "../components/ToDoItem";
 
+// Apollo
+import { useQuery, gql, useMutation } from "@apollo/client";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const GET_PROJECT = gql`
+  query getTaskList($id: ID!) {
+    getTaskList(id: $id) {
+      id
+      title
+      createdAt
+      todos {
+        id
+        content
+        isCompleted
+      }
+      users {
+        id
+      }
+    }
+  }
+`;
+
+const CREATE_TODO = gql`
+  mutation createToDo($content: String!, $taskListId: ID!) {
+    createToDo(content: $content, taskListId: $taskListId) {
+      id
+      content
+      isCompleted
+      taskList {
+        id
+        progress
+        todos {
+          id
+          content
+          isCompleted
+        }
+      }
+    }
+  }
+`;
+
 export default function ToDoScreen() {
+  const [project, setProject] = useState(null);
   const [title, setTitle] = useState("");
-  const [todos, setTodos] = useState([
-    {
-      id: "1",
-      content: "Arpit Anand",
-      isCompleted: false,
-    },
-    {
-      id: "2",
-      content: "Arpit Anand Second",
-      isCompleted: false,
-    },
-    {
-      id: "3",
-      content: "Lets Go",
-      isCompleted: true,
-    },
-    {
-      id: "4",
-      content: "Lets rock",
-      isCompleted: false,
-    },
-  ]);
+
+  const navigation = useNavigation();
+  const route = useRoute();
+  const id = route.params.id;
+
+  const { data, error, loading } = useQuery(GET_PROJECT, { variables: { id } });
+
+  const [createTodo, { data: createTodoData, error: createTodoError }] =
+    useMutation(CREATE_TODO, { refetchQueries: GET_PROJECT });
+
+  useEffect(() => {
+    if (error) {
+      console.log(error);
+      Alert.alert("Error fetching project", error.message);
+      AsyncStorage.removeItem("token");
+      navigation.navigate("SignIn");
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (data) {
+      setProject(data.getTaskList);
+      setTitle(data.getTaskList.title);
+    }
+  }, [data]);
 
   const createNewItem = (atIndex: number) => {
-    const newToDos = [...todos];
-    newToDos.splice(atIndex, 0, {
-      id: (atIndex + 1).toString(),
-      content: "",
-      isCompleted: false,
+    createTodo({
+      variables: {
+        content: "",
+        taskListId: id,
+      },
     });
-    setTodos(newToDos);
   };
+
+  if (!project) {
+    return null;
+  }
 
   return (
     <KeyboardAvoidingView
@@ -60,7 +112,7 @@ export default function ToDoScreen() {
           placeholderTextColor="white"
         />
         <FlatList
-          data={todos}
+          data={project.todos}
           renderItem={({ item, index }) => (
             <ToDoItem todo={item} onSubmit={() => createNewItem(index + 1)} />
           )}

@@ -1,13 +1,66 @@
 import React, { useState } from "react";
 
-import { View, Text, TextInput, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { useNavigation } from "@react-navigation/native";
+
+// Apollo
+import { useMutation, gql } from "@apollo/client";
+
+const SIGN_UP_MUTATION = gql`
+  mutation signUp($email: String!, $password: String!, $name: String!) {
+    signUp(input: { name: $name, email: $email, password: $password }) {
+      token
+      user {
+        id
+        name
+      }
+    }
+  }
+`;
+
 const SignUpScreen = () => {
-  const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const navigation = useNavigation();
-  const onSubmit = () => {};
+
+  // mutation[0]: A function to trigger mutation
+  // mutation[1]: Result object - { data, error, loading }
+  const [signUp, { data, error, loading }] = useMutation(SIGN_UP_MUTATION);
+
+  if (!!error) {
+    Alert.alert("Error signing up. Retry signing in", error.message);
+  }
+
+  if (!!data) {
+    // save Token
+    AsyncStorage.setItem("token", data.signUp.token).then(() => {
+      // redirect Home
+      return navigation.navigate("Home");
+    });
+  }
+  const onSubmit = () => {
+    if (!name) {
+      return Alert.alert("Please enter your name");
+    } else if (!email) {
+      return Alert.alert("Please enter your email");
+    } else if (!password) {
+      return Alert.alert("Please enter your password");
+    }
+    signUp({ variables: { name, email, password } });
+  };
+
   return (
     <View style={{ padding: 20 }}>
       {/* Name */}
@@ -51,7 +104,9 @@ const SignUpScreen = () => {
         }}
       />
       {/* Sign In Button */}
+
       <Pressable
+        disabled={loading}
         onPress={onSubmit}
         style={{
           backgroundColor: "#e33069",
@@ -60,20 +115,34 @@ const SignUpScreen = () => {
           alignItems: "center",
           justifyContent: "center",
           marginTop: 30,
+          flexDirection: "row",
         }}
       >
-        <Text
-          style={{
-            color: "white",
-            fontSize: 18,
-            fontWeight: "bold",
-          }}
-        >
-          Sign In
-        </Text>
+        {!!loading && (
+          <ActivityIndicator
+            color="white"
+            style={{
+              paddingVertical: 0,
+            }}
+          />
+        )}
+        {!loading && (
+          <Text
+            style={{
+              color: "white",
+              fontSize: 18,
+              fontWeight: "bold",
+            }}
+          >
+            Sign Up
+          </Text>
+        )}
       </Pressable>
+
       {/* Sign Up Button */}
+
       <Pressable
+        disabled={loading}
         onPress={() => navigation.navigate("SignIn")}
         style={{
           height: 50,
